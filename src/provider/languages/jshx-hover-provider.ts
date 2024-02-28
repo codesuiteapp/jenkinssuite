@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import * as vscode from 'vscode';
 
-export class JksshHoverProvider implements vscode.HoverProvider {
+export class JshxHoverProvider implements vscode.HoverProvider {
 
     provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
         const wordRange = document.getWordRangeAtPosition(position, /[\w-]+/);

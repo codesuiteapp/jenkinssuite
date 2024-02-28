@@ -3,7 +3,7 @@
     "prefix": "create_jenkins_shell",
     "body": [
       "#!jenkins",
-      "# Save using the .jkssh file extension",
+      "# Save using the .jshx file extension",
       "",
       "create-user     dev1 dev1234                # create user (account: dev1, password: dev1234)",
       "create-view     link-view  .*-link          # create View with regex \".*-link\"",
@@ -25,7 +25,7 @@
       ""
     ],
     "description": "Create Jenkins Shell Script",
-    "language": "jkssh",
+    "language": "jshx",
     "type": "system"
   },
   "C_DSL_VIEW_ALL": {

@@ -6,8 +6,8 @@ import { JobsProvider } from './provider/jobs-provider';
 import { JenkinsCodeLensProvider } from './provider/languages/jenkins-codelens';
 import { JenkinsHoverProvider } from './provider/languages/jenkins-hover-provider';
 import { JenkinsPipelineSymbolProvider } from './provider/languages/jenkins-symbol-provider.ts';
-import { JksshHoverProvider } from './provider/languages/jkssh-hover-provider';
-import { JksshDocumentSymbolProvider } from './provider/languages/jkssh-symbol-provider';
+import { JshxHoverProvider } from './provider/languages/jshx-hover-provider';
+import { JshxDocumentSymbolProvider } from './provider/languages/jshx-symbol-provider';
 import { XmlCodeLensProvider } from './provider/languages/xml-codelens';
 import { NotifyProvider } from './provider/notify-provider';
 import { ProjectProvider } from './provider/project-provider';
@@ -39,22 +39,26 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider("snippetsView", snippetProvider);
 
 	const jenkinsSymbolProvider = new JenkinsPipelineSymbolProvider();
-	const jksSymbolProvider = new JksshDocumentSymbolProvider();
+	const jshxSymbolProvider = new JshxDocumentSymbolProvider();
 	const symbolProviders = [
 		{ language: 'jenkins', scheme: 'file', provider: jenkinsSymbolProvider },
-		{ language: 'jkssh', scheme: 'file', provider: jksSymbolProvider },
 		{ language: 'jenkins', scheme: 'jkssh', provider: jenkinsSymbolProvider },
-		{ language: 'jkssh', scheme: 'jkssh', provider: jksSymbolProvider },
+		{ language: 'jshx', scheme: 'file', provider: jshxSymbolProvider },
+		{ language: 'jkssh', scheme: 'file', provider: jshxSymbolProvider },
+		{ language: 'jshx', scheme: 'jshx', provider: jshxSymbolProvider },
+		{ language: 'jkssh', scheme: 'jshx', provider: jshxSymbolProvider },
 	];
 
 	const jenkinsHoverProvider = new JenkinsHoverProvider();
-	const jksshHoverProvider = new JksshHoverProvider();
+	const jshxHoverProvider = new JshxHoverProvider();
 
 	const hoverProviders = [
 		{ language: 'jenkins', scheme: 'file', provider: jenkinsHoverProvider },
-		{ language: 'jkssh', scheme: 'file', provider: jksshHoverProvider },
-		{ language: 'jenkins', scheme: 'jkssh', provider: jenkinsHoverProvider },
-		{ language: 'jkssh', scheme: 'jkssh', provider: jksshHoverProvider },
+		{ language: 'jenkins', scheme: 'jshx', provider: jenkinsHoverProvider },
+		{ language: 'jshx', scheme: 'file', provider: jshxHoverProvider },
+		{ language: 'jshx', scheme: 'jshx', provider: jshxHoverProvider },
+		{ language: 'jkssh', scheme: 'file', provider: jshxHoverProvider },
+		{ language: 'jkssh', scheme: 'jshx', provider: jshxHoverProvider },
 	];
 
 	context.subscriptions.push(
@@ -67,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand("utocode.welcome", () => {
 			vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `utocode.jenkinssuite#utocode.welcome`, false);
 		}),
-		vscode.languages.registerCodeLensProvider(['jenkins', 'jkssh', 'groovy'], new JenkinsCodeLensProvider(context)),
+		vscode.languages.registerCodeLensProvider(['jenkins', 'jshx', 'jkssh', 'groovy'], new JenkinsCodeLensProvider(context)),
 		vscode.languages.registerCodeLensProvider(['xml'], new XmlCodeLensProvider(context)),
 		vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
 			const customFile = JenkinsConfiguration.snippetCustomFilePath;

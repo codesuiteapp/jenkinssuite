@@ -1,7 +1,6 @@
 import Ajv, * as ajv from 'ajv';
 import _ from 'lodash';
 import * as vscode from "vscode";
-import { Constants } from '../svc/constants';
 import logger from '../utils/logger';
 
 export interface JenkinsProperty {
@@ -117,7 +116,7 @@ export default class JenkinsConfiguration {
             ??
             vscode.workspace.getConfiguration(JenkinsConfiguration.rootName).inspect<string>(key)?.defaultValue
             ??
-            '_JKSSH';
+            '_JShell';
     }
 
     public static get categorizedEnabled(): boolean {

@@ -4,7 +4,7 @@ import JenkinsConfiguration from '../config/settings';
 import { Constants } from '../svc/constants';
 import { JenkinsShell } from '../svc/jenkins-shell';
 import { SnippetItem } from '../svc/jenkins-snippet';
-import { convertJksshAsJob, convertPipelineJob, deleteJobParam, executeQuick } from '../svc/script-svc';
+import { convertJshxAsJob, convertPipelineJob, deleteJobParam, executeQuick } from '../svc/script-svc';
 import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
@@ -69,8 +69,8 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 }
             }),
             vscode.commands.registerCommand('utocode.executeQuick', async () => {
-                if (this._executor) {
-                    executeQuick(this._executor);
+                if (this.executor) {
+                    executeQuick(this.executor);
                 }
             }),
             vscode.commands.registerCommand('utocode.createJob', async () => {
@@ -419,15 +419,15 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     logger.error(error.message);
                 }
             }),
-            vscode.commands.registerCommand('utocode.convertJksshAsJob', async () => {
-                if (this._executor) {
-                    await convertJksshAsJob(this._executor);
+            vscode.commands.registerCommand('utocode.convertJshxAsJob', async () => {
+                if (this.executor) {
+                    await convertJshxAsJob(this.executor);
                     await refreshView('utocode.jobs.refresh', 1200);
                 }
             }),
             vscode.commands.registerCommand('utocode.convertPipelineJob', async () => {
-                if (this._executor) {
-                    await convertPipelineJob(this._executor);
+                if (this.executor) {
+                    await convertPipelineJob(this.executor);
                     await refreshView('utocode.jobs.refresh', 1200);
                 }
             }),

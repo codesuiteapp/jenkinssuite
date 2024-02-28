@@ -92,7 +92,7 @@ export class XmlCodeLensProvider implements vscode.CodeLensProvider {
                         const lang = command.split('\n')[0];
                         let languageId = lang.startsWith('#!') ? lang.substring(2) : 'shellscript';
                         if (languageId === 'jenkins') {
-                            languageId = 'jkssh';
+                            languageId = 'jshx';
                         }
 
                         const command5 = {

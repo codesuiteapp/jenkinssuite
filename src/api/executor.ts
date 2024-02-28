@@ -1,6 +1,5 @@
 import FormData from 'form-data';
 import { decode } from 'html-entities';
-import { initial } from 'lodash';
 import * as vscode from 'vscode';
 import JenkinsConfiguration, { JenkinsServer } from '../config/settings';
 import { Constants } from '../svc/constants';
@@ -288,7 +287,7 @@ export class Executor {
         return false;
     }
 
-    async convertJksshAsJob(jobName: string, shCmd: string) {
+    async convertJshxAsJob(jobName: string, shCmd: string) {
         const snippetItem = await this.snippetSvc.invokeSnippetJenkins('create_jenkins_shell');
         let data: string | undefined;
         if (snippetItem && snippetItem.body) {
@@ -296,7 +295,7 @@ export class Executor {
                 .replace('__SHELL_TEXT__', shCmd);
         }
 
-        logger.debug(`convertJksshAsJob:: jobName <${jobName}>`);
+        logger.debug(`convertJshxAsJob:: jobName <${jobName}>`);
         return data && await this.executeScript(data);
     }
 

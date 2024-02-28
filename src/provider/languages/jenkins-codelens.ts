@@ -10,7 +10,7 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
     }
 
     public provideCodeLenses(document: vscode.TextDocument, _token: vscode.CancellationToken) {
-        if (document.languageId === 'jenkins' || document.languageId === 'jkssh') {
+        if (document.languageId === 'jenkins' || document.languageId === 'jshx' || document.languageId === 'jkssh') {
             const text = document.getText();
 
             if (text) {
@@ -43,7 +43,7 @@ export class JenkinsCodeLensProvider implements vscode.CodeLensProvider {
                     };
                     const command2 = {
                         title: '$(server-process) Convert Job',
-                        command: 'utocode.convertJksshAsJob',
+                        command: 'utocode.convertJshxAsJob',
                         tooltip: 'Convert Jenkins Shell to Job',
                         arguments: []
                     };

@@ -7,7 +7,7 @@ import { executeScript } from '../svc/script-svc';
 import { JenkinsUser, JobsModel, ViewsModel } from '../types/model';
 import { switchConnection } from '../ui/manage';
 import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
-import { getSelectionText, openEditorWithNew, printEditorWithNew } from '../utils/editor';
+import { printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
 import { openSettings } from '../utils/vsc';
 import { BuildsProvider } from './builds-provider';
@@ -266,8 +266,8 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                 openLinkBrowser(job.url);
             }),
             vscode.commands.registerCommand('utocode.executeScript', async (text: string) => {
-                if (this._executor) {
-                    executeScript(this._executor, text);
+                if (this.executor) {
+                    executeScript(this.executor, text);
                 }
             }),
             vscode.commands.registerCommand('utocode.copyScript', async (text: string) => {

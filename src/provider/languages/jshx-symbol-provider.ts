@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export class JksshDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
+export class JshxDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
 
     provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.ProviderResult<vscode.DocumentSymbol[]> {
         const symbols: vscode.DocumentSymbol[] = [];

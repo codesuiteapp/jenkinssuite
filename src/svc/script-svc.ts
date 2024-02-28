@@ -14,12 +14,12 @@ export async function executeQuick(_executor: Executor) {
         const languageIds = document.languageId;
         // logger.debug(`language <${languageIds}>`);
 
-        if (languageIds === 'jenkins' || languageIds === 'jkssh') {
+        if (languageIds === 'jenkins' || languageIds === 'jshx' || languageIds === 'jkssh') {
             const text = getSelectionText();
             if (text.startsWith('#!jenkins')) {
-                const jksShell = new JenkinsShell(_executor!);
+                const jShell = new JenkinsShell(_executor!);
                 await notifyUIUserMessage('Processing', false);
-                const results = await jksShell.execute(text);
+                const results = await jShell.execute(text);
 
                 const scriptNextWindowEnabled = JenkinsConfiguration.scriptNextWindowEnabled;
                 if (scriptNextWindowEnabled) {
@@ -76,7 +76,7 @@ export async function executeScript(_executor: Executor, text: string) {
     }
 }
 
-export async function convertJksshAsJob(_executor: Executor) {
+export async function convertJshxAsJob(_executor: Executor) {
     const saved = saveCurrentEditor();
     let jobName = await vscode.window.showInputBox({
         title: 'Job Name',
@@ -92,7 +92,7 @@ export async function convertJksshAsJob(_executor: Executor) {
         if (!jobName.endsWith(suffix)) {
             jobName = jobName + suffix;
         }
-        const result = await _executor.convertJksshAsJob(jobName, text);
+        const result = await _executor.convertJshxAsJob(jobName, text);
         if (result === '') {
             showInfoMessageWithTimeout(vscode.l10n.t('Create Job <{0}>', jobName));
         }
