@@ -1,4 +1,3 @@
-import { log } from 'console';
 import path from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';

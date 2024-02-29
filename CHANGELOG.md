@@ -1,5 +1,9 @@
 # Change Log
 
+### [0.7.1] - 2024-02-29
+
+- A few bug fixes
+
 ### [0.7.0] - 2024-02-28
 
 - A few bug fixes

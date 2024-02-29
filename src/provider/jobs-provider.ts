@@ -506,7 +506,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             const viewName = this.view?.name ?? 'all';
             notifyUIUserMessage();
             const mesg = await this.executor?.createJobInput(text, viewName);
-            // console.log(`result < ${ mesg } > `);
+            // console.log(`result <${mesg}>`);
             clearEditor();
         } else {
             let jobs = this.buildsProvider.jobs;
@@ -517,7 +517,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
             notifyUIUserMessage();
             const mesg = await this.executor?.updateJobConfig(jobs.name, text);
-            // console.log(`result < ${ mesg } > `);
+            // console.log(`result <${mesg}>`);
             setTimeout(() => {
                 vscode.commands.executeCommand('utocode.getConfigJob', jobs, true);
             }, Constants.JENKINS_DEFAULT_GROOVY_DELAY);

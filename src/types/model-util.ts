@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { DefinitionPropertyType, JobActionType } from './jenkins-types';
 import { BaseAction, CauseAction, JobParamDefinition, JobProperty, ParameterAction } from './model';
 

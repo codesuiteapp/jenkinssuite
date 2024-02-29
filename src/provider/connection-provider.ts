@@ -240,7 +240,7 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
                         }
                     }
                     if (portArg.startsWith('-')) {
-                        portArg = ` ${portArg} `;
+                        portArg = `${portArg}`;
                     }
                     const port = server.ssh.port === 22 ? '' : `${portArg}${server.ssh.port}`;
                     const execCmd = `${program} ${server.ssh.username}@${server.ssh.address}${port} ${server.ssh.extraArg ?? ''}`;

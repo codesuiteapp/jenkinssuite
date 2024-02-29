@@ -138,7 +138,7 @@ export function makeToolTipJob(jobModel: JobsModel) {
     const hiddenParams = paramAction?.filter(param => param._class === ParametersDefinitionProperty.wHideParameterDefinition.toString());
     if (hiddenParams) {
         for (let param of hiddenParams) {
-            text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue.value}) \n`);
+            text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue?.value ?? '-'}) \n`);
         }
     }
     text.appendMarkdown('\n---\n');
@@ -147,7 +147,7 @@ export function makeToolTipJob(jobModel: JobsModel) {
     const usedParams = paramAction?.filter(param => param._class !== ParametersDefinitionProperty.wHideParameterDefinition.toString());
     if (usedParams && usedParams.length > 0) {
         for (let param of usedParams) {
-            text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue.value}) \n`);
+            text.appendMarkdown(`* ${param.name} (${param.defaultParameterValue?.value ?? '-'}) \n`);
         }
     } else {
         text.appendMarkdown('* __None__\n');

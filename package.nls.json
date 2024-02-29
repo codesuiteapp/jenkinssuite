@@ -112,7 +112,7 @@
   "generateCode.title": "Generate Code From Snippet",
   "executeScript.title": "Execute Groovy Script",
   "executeQuick.title": "Execute Quick",
-  "convertJshxAsJob.title": "convert Jenkins Job",
+  "convertJshxAsJob.title": "Convert Jenkins Job",
   "views.notify.enabled.description": "Specifies whether to show the Notify view",
   "views.snippet.enabled.description": "Specifies whether to show the Snippet view",
   "views.project.enabled.description": "Specifies whether to show the Project view",
