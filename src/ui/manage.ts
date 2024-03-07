@@ -13,23 +13,55 @@ export async function switchConnection(context: vscode.ExtensionContext, connect
         return;
     }
 
+    const homeBtn: vscode.QuickInputButton = {
+        iconPath: new vscode.ThemeIcon('globe'),
+        tooltip: 'Home'
+    };
+
+    const userBtn: vscode.QuickInputButton = {
+        iconPath: new vscode.ThemeIcon('account'),
+        tooltip: 'User'
+    };
+
     const items: ModelQuickPick<JenkinsServer>[] = [];
     for (const [name, server] of servers) {
         items.push({
-            label: `$(device-desktop) ${name}`,
-            detail: server.description,
-            model: server
+            label: (connectionProvider.currentServer?.name === name ? '$(sync)' : '$(device-desktop)') + ` ${server.description ?? server.name} (${name})`,
+            description: `${server.username}`,
+            detail: server.url,
+            model: server,
+            buttons: [homeBtn, userBtn]
         });
     }
 
-    await vscode.window.showQuickPick(items, {
-        title: vscode.l10n.t("Switch Server"),
-        placeHolder: vscode.l10n.t("Select to switch server")
-    }).then(async (selectedItem) => {
-        if (selectedItem) {
-            connectionProvider.connect(selectedItem.model!);
+    const quickPick = vscode.window.createQuickPick<ModelQuickPick<JenkinsServer>>();
+    quickPick.title = vscode.l10n.t("Jenkins Server");
+    quickPick.placeholder = vscode.l10n.t("Select to switch server");
+    // quickPick.ignoreFocusOut = true;
+    quickPick.matchOnDetail = true;
+    quickPick.matchOnDescription = true;
+    quickPick.items = items;
+
+    quickPick.onDidAccept(async () => {
+        const item = quickPick.selectedItems[0] as ModelQuickPick<JenkinsServer>;
+        if (!item) {
+            return;
+        }
+
+        await connectionProvider.connect(item.model!);
+        quickPick.dispose();
+    });
+
+    quickPick.onDidTriggerItemButton(async (e) => {
+        if (e.button.tooltip === 'Home') {
+            await vscode.commands.executeCommand('utocode.openLink#Home', e.item.model);
+        } else if (e.button.tooltip === 'User') {
+            await vscode.commands.executeCommand('utocode.openLinkUserConfigure', e.item.model);
         }
     });
+
+    quickPick.show();
+
 }
 
 export async function runJobAll(jobsProvider: JobsProvider, includeJob: boolean = true) {
@@ -39,19 +71,46 @@ export async function runJobAll(jobsProvider: JobsProvider, includeJob: boolean 
         return;
     }
 
-    const items = getJobsAsModel(jobsProvider, jobs, includeJob);
-    await vscode.window.showQuickPick(items, {
-        title: vscode.l10n.t("Build Job"),
-        placeHolder: vscode.l10n.t("Select the job you want to build"),
-        canPickMany: false
-    }).then(async (selectedItem) => {
-        if (selectedItem) {
-            vscode.commands.executeCommand('utocode.buildJob', selectedItem.model);
+    const quickPick = vscode.window.createQuickPick<ModelQuickPick<JobsModel>>();
+    quickPick.title = vscode.l10n.t("Build Job");
+    quickPick.placeholder = vscode.l10n.t("Select the job you want to build");
+    // quickPick.ignoreFocusOut = true;
+    quickPick.matchOnDetail = true;
+    quickPick.matchOnDescription = true;
+    quickPick.items = await getJobsAsModel(jobsProvider, jobs, includeJob);
+
+    quickPick.onDidAccept(async () => {
+        const item = quickPick.selectedItems[0] as ModelQuickPick<JobsModel>;
+        if (!item) {
+            return;
+        }
+
+        await vscode.commands.executeCommand('utocode.buildJob', item.model);
+        quickPick.dispose();
+    });
+
+    quickPick.onDidTriggerItemButton(async (e) => {
+        if (e.button.tooltip === 'Config') {
+            await vscode.commands.executeCommand('utocode.getConfigJob', e.item.model, true);
+        } else if (e.button.tooltip === 'Log') {
+            await jobsProvider.getJobLogByJob(e.item.model as JobsModel, 0);
         }
     });
+
+    quickPick.show();
 }
 
 export async function getJobsAsModel(jobsProvider: JobsProvider, jobs: JobsModel[], includeJob: boolean = true): Promise<ModelQuickPick<JobsModel>[]> {
+    const fileBtn: vscode.QuickInputButton = {
+        iconPath: vscode.ThemeIcon.File,
+        tooltip: 'Config'
+    };
+
+    const logBtn: vscode.QuickInputButton = {
+        iconPath: new vscode.ThemeIcon('console'),
+        tooltip: 'Log'
+    };
+
     const items: ModelQuickPick<JobsModel>[] = [];
     if (includeJob) {
         const jobTypes = [JobModelType.freeStyleProject.toString(), JobModelType.workflowJob.toString(), JobModelType.workflowMultiBranchProject.toString()];
@@ -69,7 +128,8 @@ export async function getJobsAsModel(jobsProvider: JobsProvider, jobs: JobsModel
             items.push({
                 label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
                 description: job.jobDetail?.description ? job.jobDetail?.description : job.jobDetail?.displayName,
-                model: job
+                model: job,
+                buttons: [fileBtn, logBtn]
             });
             idx++;
         }

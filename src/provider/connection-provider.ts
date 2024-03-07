@@ -510,6 +510,10 @@ export class ConnectionProvider implements vscode.TreeDataProvider<JenkinsServer
         }
     }
 
+    public get currentServer(): JenkinsServer | undefined {
+        return this._currentServer;
+    }
+
     refresh(): void {
         this._onDidChangeTreeData.fire(undefined);
     }

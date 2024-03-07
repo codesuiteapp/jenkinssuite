@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration from '../config/settings';
 import { getResultColor } from '../types/jenkins-types';
-import buildJobModelType, { BuildDetailStatus, BuildStatus, CauseParameter, JobModelType, JobParameter, JobsModel } from '../types/model';
+import buildJobModelType, { BuildDetailStatus, BuildStatus, CauseParameter, JobParameter, JobsModel } from '../types/model';
 import { getCauseAction, getParameterAction } from '../types/model-util';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { formatDurationTime, getLocalDate } from '../utils/datetime';
@@ -32,11 +32,7 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
                     showInfoMessageWithTimeout(vscode.l10n.t("Jenkins is not connected"));
                     return;
                 }
-
-                const text = await this.executor?.getJobLog(job.url, build.number);
-                if (text) {
-                    printEditorWithNew(text, 'shellscript');
-                }
+                await this.getJobLogByJob(job, build.number);
             }),
             vscode.commands.registerCommand('utocode.switchBuild', async () => {
                 const builds = await this.getBuilds();
@@ -140,6 +136,13 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
             builds = builds.slice(0, JenkinsConfiguration.limitBuilds);
         }
         return builds;
+    }
+
+    async getJobLogByJob(job: JobsModel, num: number) {
+        const text = await this.executor?.getJobLog(job.url, num);
+        if (text) {
+            printEditorWithNew(text, 'shellscript');
+        }
     }
 
     get jobs(): JobsModel | undefined {

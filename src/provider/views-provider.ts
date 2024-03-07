@@ -179,7 +179,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         });
 
         await vscode.window.showQuickPick(items, {
-            title: vscode.l10n.t("Switch view"),
+            title: vscode.l10n.t("View"),
             placeHolder: vscode.l10n.t("Select to switch view")
         }).then(async (selectedItem) => {
             if (selectedItem) {

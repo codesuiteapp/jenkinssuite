@@ -519,7 +519,7 @@ export class Executor {
     async getJobLog(url: string, buildNumber: number): Promise<string> {
         const uri = this.extractUrl(url);
         return await this._jenkins._post<string>(
-            `${uri}/${buildNumber}/consoleText`
+            `${uri}/${buildNumber === 0 ? 'lastBuild' : buildNumber}/consoleText`
         );
     }
 

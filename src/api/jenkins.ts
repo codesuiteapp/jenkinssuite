@@ -1,4 +1,4 @@
-import axios, { Axios, AxiosHeaders, AxiosRequestConfig } from 'axios';
+import axios, { AxiosHeaders, AxiosRequestConfig } from 'axios';
 import FormData from 'form-data';
 import { JenkinsServer } from '../config/settings';
 import { CrumbIssuer } from '../types/model';

@@ -640,6 +640,13 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         return text;
     }
 
+    async getJobLogByJob(job: JobsModel, num: number) {
+        const text = await this.executor?.getJobLog(job.url, num);
+        if (text) {
+            printEditorWithNew(text, 'shellscript');
+        }
+    }
+
     get view() {
         return this._view;
     }
