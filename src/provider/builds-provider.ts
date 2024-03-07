@@ -4,6 +4,7 @@ import JenkinsConfiguration from '../config/settings';
 import { getResultColor } from '../types/jenkins-types';
 import buildJobModelType, { BuildDetailStatus, BuildStatus, CauseParameter, JobParameter, JobsModel } from '../types/model';
 import { getCauseAction, getParameterAction } from '../types/model-util';
+import { switchBuild } from '../ui/manage';
 import { showInfoMessageWithTimeout } from '../ui/ui';
 import { formatDurationTime, getLocalDate } from '../utils/datetime';
 import { printEditorWithNew } from '../utils/editor';
@@ -37,18 +38,8 @@ export class BuildsProvider implements vscode.TreeDataProvider<BuildStatus> {
             vscode.commands.registerCommand('utocode.switchBuild', async () => {
                 const builds = await this.getBuilds();
 
-                if (builds && builds.length > 0) {
-                    await vscode.window.showQuickPick(builds.map<string>(v => v.number.toString()), {
-                        title: this.jobs?.name ?? 'Builds',
-                        placeHolder: vscode.l10n.t("Select to view Job Log")
-                    }).then(async (selectedItem) => {
-                        if (selectedItem) {
-                            const text = await this.executor?.getJobLog(this.jobs!.url, parseInt(selectedItem));
-                            if (text) {
-                                printEditorWithNew(text, 'shellscript');
-                            }
-                        }
-                    });
+                if (this.executor && builds && builds.length > 0) {
+                    switchBuild(this.executor, this.jobs, builds);
                 }
             }),
         );

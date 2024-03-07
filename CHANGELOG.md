@@ -1,5 +1,10 @@
 # Change Log
 
+### [0.7.2] - 2024-03-07
+
+- A few bug fixes
+- Change UI of the quickPick
+
 ### [0.7.1] - 2024-02-29
 
 - A few bug fixes

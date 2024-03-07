@@ -9,7 +9,8 @@ import { SnippetSvc } from '../svc/snippet';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import { BaseJobModel, BuildStatus, BuildsModel, JobModelType, JobParamDefinition, JobsModel, ModelQuickPick, ViewsModel, WsTalkMessage } from '../types/model';
 import { getJobParamDefinitions } from '../types/model-util';
-import { getFolderAsModel, runJobAll } from '../ui/manage';
+import { jobButtons } from '../ui/button';
+import { getFolderAsModel, runJobAll, switchJob } from '../ui/manage';
 import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithTimeout } from '../ui/ui';
 import { clearEditor, getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
@@ -150,17 +151,9 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                     printEditorWithNew(item.model.body.join('\n'), item.model.language);
                 }
             }),
-            vscode.commands.registerCommand('utocode.switchJob', async (job: JobsModel) => {
-                const items = this.getJobsWithViewAsModel();
-
-                await vscode.window.showQuickPick(items, {
-                    title: vscode.l10n.t("Switch job"),
-                    placeHolder: vscode.l10n.t("Select to switch only job")
-                }).then(async (selectedItem) => {
-                    if (selectedItem) {
-                        this.buildsProvider.jobs = selectedItem.model!;
-                    }
-                });
+            vscode.commands.registerCommand('utocode.switchJob', async () => {
+                const items = await this.getJobsWithViewAsModel();
+                await switchJob(items, this.buildsProvider);
             }),
             vscode.commands.registerCommand('utocode.addReservation', async (job1: JobsModel) => {
                 const job = this.getFindJob(job1);
@@ -172,9 +165,9 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 await vscode.window.showQuickPick(items, {
                     title: vscode.l10n.t("Reservation"),
                     placeHolder: vscode.l10n.t("Select to switch only job")
-                }).then(async (selectedItem) => {
-                    if (selectedItem) {
-                        this.reservationProvider.addReservation(selectedItem.model!);
+                }).then(async (item) => {
+                    if (item) {
+                        this.reservationProvider.addReservation(item.model!);
                     }
                 });
             }),
@@ -477,10 +470,20 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
         let allViewModel = await this.executor?.getViewsWithDetail(viewname, true);
         if (allViewModel?.jobs) {
             allViewModel.jobs.filter(job => job.jobDetail?.buildable && job._class !== JobModelType.folder.toString()).forEach(job => {
+                const labelName = this.buildsProvider.jobs?.name === job.name ? '$(eye) ' : job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(circle-outline) ";
+                const params = job.jobDetail?.property && getParameterDefinition(job.jobDetail);
+                let param = '';
+                let cnt = 0;
+                if (params && params.length > 0) {
+                    param = params[0].parameterDefinitions?.map(param => param.name).join(', ');
+                    cnt = params[0].parameterDefinitions.length;
+                }
                 items.push({
-                    label: (job._class === JobModelType.freeStyleProject ? "$(terminal) " : "$(tasklist) ") + job.name,
+                    label: labelName + job.name,
                     description: job.jobDetail?.description,
-                    model: job
+                    detail: cnt > 0 ? ` * param: ${cnt} <${param}>` : '',
+                    model: job,
+                    buttons: jobButtons
                 });
 
                 if (items.length % 5 === 0) {

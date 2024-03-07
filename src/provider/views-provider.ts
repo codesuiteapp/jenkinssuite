@@ -4,6 +4,7 @@ import { Executor } from '../api/executor';
 import { Constants } from '../svc/constants';
 import { ViewType } from '../types/jenkins-types';
 import { JenkinsInfo, ModelQuickPick, ViewsModel } from '../types/model';
+import { viewButtons } from '../ui/button';
 import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
@@ -166,26 +167,55 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         }
 
         const items: ModelQuickPick<ViewsModel>[] = [];
+
+        let idx = 0;
         views.forEach(view => {
             let icon = this.getViewIcon(view._class);
             if (this._view && this._view.name === view.name) {
                 icon = 'eye';
             }
+            if (idx % 5 === 0) {
+                items.push({
+                    label: '',
+                    kind: vscode.QuickPickItemKind.Separator
+                });
+            }
             items.push({
                 label: `$(${icon}) ${view.name}`,
                 description: view._class.split('.').pop(),
-                model: view
+                model: view,
+                buttons: viewButtons
             });
+            idx++;
         });
 
-        await vscode.window.showQuickPick(items, {
-            title: vscode.l10n.t("View"),
-            placeHolder: vscode.l10n.t("Select to switch view")
-        }).then(async (selectedItem) => {
-            if (selectedItem) {
-                this.changeView(selectedItem.model!);
+        const quickPick = vscode.window.createQuickPick<ModelQuickPick<ViewsModel>>();
+        quickPick.title = vscode.l10n.t("Views");
+        quickPick.placeholder = vscode.l10n.t("Select to switch view");
+        // quickPick.ignoreFocusOut = true;
+        quickPick.matchOnDetail = true;
+        quickPick.matchOnDescription = true;
+        quickPick.items = items;
+
+        quickPick.onDidAccept(async () => {
+            const item = quickPick.selectedItems[0] as ModelQuickPick<ViewsModel>;
+            if (!item) {
+                return;
+            }
+
+            this.changeView(item.model!);
+            quickPick.dispose();
+        });
+
+        quickPick.onDidTriggerItemButton(async (e) => {
+            if (e.button.tooltip === 'Config') {
+                await vscode.commands.executeCommand('utocode.getConfigView', e.item.model);
+            } else if (e.button.tooltip === 'Open') {
+                await vscode.commands.executeCommand('utocode.openLinkView', e.item.model);
             }
         });
+
+        quickPick.show();
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<ViewsModel | undefined> = new vscode.EventEmitter<ViewsModel | undefined>();
