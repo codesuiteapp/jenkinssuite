@@ -1,6 +1,7 @@
 import { ProgressLocation, Uri, commands, env, version, window } from 'vscode';
 import { Constants } from '../svc/constants';
 import { printEditor } from '../utils/editor';
+import logger from '../utils/logger';
 
 export function showInfoMessageWithTimeout(message: string, timeout: number = 3000) {
     const upTo = timeout / 10;
@@ -33,6 +34,29 @@ export async function showDoneableInfo(title: string, callback: () => Promise<vo
     );
 }
 
+export async function notifyWithProgress<T>(title: string, cbFn: () => Promise<T>) {
+    try {
+        const result = await window.withProgress<T>({
+            location: ProgressLocation.Notification,
+            title,
+            cancellable: true,
+        },
+            async (progress, token) => {
+                token.onCancellationRequested(() => {
+                    console.log('Progress canceled');
+                });
+                return cbFn();
+            }
+        );
+        return result;
+    } catch (error: any) {
+        logger.error(`notifyWithProgress(): error <${error.message}>`);
+        // throw error;
+    }
+    return undefined;
+}
+
+
 export async function showErrorMessageWithMoreInfo(message: string, link: string) {
     const moreInfo = 'More Info';
     const result = await window.showErrorMessage(message, moreInfo);
@@ -44,8 +68,8 @@ export async function showErrorMessageWithMoreInfo(message: string, link: string
 export function openLinkBrowser(url: string) {
     try {
         env.openExternal(Uri.parse(url));
-    } catch (error) {
-        console.error('Error opening browser: ', error);
+    } catch (error: any) {
+        console.error('Error opening browser:', error.message);
     }
 }
 
@@ -61,7 +85,7 @@ export async function notifyUIUserMessage(message: string = 'Processing', showEd
             }
         }
     } catch (error: any) {
-        // ignore
+        console.error('Error:', error.message);
     }
 }
 

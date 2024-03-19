@@ -25,4 +25,18 @@ export namespace Constants {
 
     export const SNIPPET_RENAME_FOLDER = 'rename_folder';
 
+    export const CONFIG_BUTTON = 'Config';
+
+    export const LOG_BUTTON = 'Log';
+
+    export const RUN_BUTTON = 'Run';
+
+    export const OPEN_LINK_BUTTON = 'Open Link';
+
+    export const SERVER_WINDOW_BUTTON = 'Server Window';
+
+    export const VIEW_WINDOW_BUTTON = 'View Window';
+
+    export const JOB_WINDOW_BUTTON = 'Job Window';
+
 }

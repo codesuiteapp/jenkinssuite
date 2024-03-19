@@ -142,3 +142,25 @@ export function registerCommand(context: vscode.ExtensionContext, name: string,
 export function addWorkspaceFolder(...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]) {
     return vscode.workspace.updateWorkspaceFolders(0, 0, ...workspaceFoldersToAdd);
 }
+
+export async function executeServerWindow(...rest: any[]) {
+    await executeCommand('utocode.switchConnection', ...rest);
+}
+
+export async function executeViewWindow(...rest: any[]) {
+    await executeCommand('utocode.switchView', ...rest);
+}
+
+export async function executeJobWindow(...rest: any[]) {
+    await executeCommand('utocode.switchJob', ...rest);
+}
+
+export async function switchHeaderView(btn: vscode.QuickInputButton) {
+    if (btn.tooltip === Constants.JOB_WINDOW_BUTTON) {
+        await executeJobWindow();
+    } else if (btn.tooltip === Constants.VIEW_EXTENSION_NAME) {
+        await executeViewWindow();
+    } else if (btn.tooltip === Constants.SERVER_WINDOW_BUTTON) {
+        await executeServerWindow();
+    }
+}

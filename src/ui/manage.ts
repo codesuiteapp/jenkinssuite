@@ -8,7 +8,8 @@ import { BallColor } from '../types/jenkins-types';
 import { BuildStatus, JobModelType, JobsModel, ModelQuickPick } from '../types/model';
 import { printEditorWithNew } from '../utils/editor';
 import { getParameterDefinition } from '../utils/model-utils';
-import { buildButtons } from './button';
+import { executeViewWindow, switchHeaderView } from '../utils/vsc';
+import { buildButtons, jobHeaderButtons, manageButtons } from './button';
 import { showInfoMessageWithTimeout } from "./ui";
 
 export async function switchConnection(context: vscode.ExtensionContext, connectionProvider: ConnectionProvider) {
@@ -18,24 +19,14 @@ export async function switchConnection(context: vscode.ExtensionContext, connect
         return;
     }
 
-    const homeBtn: vscode.QuickInputButton = {
-        iconPath: new vscode.ThemeIcon('globe'),
-        tooltip: 'Home'
-    };
-
-    const userBtn: vscode.QuickInputButton = {
-        iconPath: new vscode.ThemeIcon('account'),
-        tooltip: 'User'
-    };
-
     const items: ModelQuickPick<JenkinsServer>[] = [];
     for (const [name, server] of servers) {
         items.push({
-            label: (connectionProvider.currentServer?.name === name ? '$(sync)' : '$(device-desktop)') + ` ${server.description ?? server.name} (${name})`,
+            label: (connectionProvider.currentServer?.name === name ? '$(sync~spin)' : '$(device-desktop)') + ` ${server.description ?? server.name} (${name})`,
             description: `${server.username}`,
             detail: server.url,
             model: server,
-            buttons: [homeBtn, userBtn]
+            buttons: manageButtons
         });
     }
 
@@ -224,6 +215,7 @@ export async function switchJob(items: ModelQuickPick<JobsModel>[], buildsProvid
     quickPick.matchOnDetail = true;
     quickPick.matchOnDescription = true;
     quickPick.items = items;
+    quickPick.buttons = jobHeaderButtons;
 
     quickPick.onDidAccept(async () => {
         const item = quickPick.selectedItems[0] as ModelQuickPick<JobsModel>;
@@ -233,6 +225,15 @@ export async function switchJob(items: ModelQuickPick<JobsModel>[], buildsProvid
 
         buildsProvider.jobs = item.model!;
         quickPick.dispose();
+    });
+
+    quickPick.onDidTriggerButton(async (btn) => {
+        quickPick.dispose();
+        if (btn === vscode.QuickInputButtons.Back) {
+            await executeViewWindow();
+        } else {
+            await switchHeaderView(btn);
+        }
     });
 
     quickPick.onDidTriggerItemButton(async (e) => {

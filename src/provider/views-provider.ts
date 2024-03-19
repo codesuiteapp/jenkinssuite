@@ -4,10 +4,11 @@ import { Executor } from '../api/executor';
 import { Constants } from '../svc/constants';
 import { ViewType } from '../types/jenkins-types';
 import { JenkinsInfo, ModelQuickPick, ViewsModel } from '../types/model';
-import { viewButtons } from '../ui/button';
+import { viewButtons, viewHeaderButtons } from '../ui/button';
 import { notifyUIUserMessage, openLinkBrowser, refreshView, showInfoMessageWithTimeout } from '../ui/ui';
 import { getSelectionText, printEditor, printEditorWithNew } from '../utils/editor';
 import logger from '../utils/logger';
+import { executeJobWindow, executeServerWindow, switchHeaderView } from '../utils/vsc';
 import { extractViewnameFromText } from '../utils/xml';
 import { JobsProvider } from './jobs-provider';
 
@@ -196,6 +197,7 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
         quickPick.matchOnDetail = true;
         quickPick.matchOnDescription = true;
         quickPick.items = items;
+        quickPick.buttons = viewHeaderButtons;
 
         quickPick.onDidAccept(async () => {
             const item = quickPick.selectedItems[0] as ModelQuickPick<ViewsModel>;
@@ -205,6 +207,15 @@ export class ViewsProvider implements vscode.TreeDataProvider<ViewsModel> {
 
             this.changeView(item.model!);
             quickPick.dispose();
+        });
+
+        quickPick.onDidTriggerButton(async (btn) => {
+            quickPick.dispose();
+            if (btn === vscode.QuickInputButtons.Back) {
+                await executeServerWindow();
+            } else {
+                await switchHeaderView(btn);
+            }
         });
 
         quickPick.onDidTriggerItemButton(async (e) => {
