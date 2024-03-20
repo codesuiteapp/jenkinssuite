@@ -1,7 +1,6 @@
 import FormData from 'form-data';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
-import JenkinsConfiguration from '../config/settings';
 import { ReservationJobModel, ReservationScheduler } from '../svc/reservation';
 import { ParametersDefinitionProperty } from '../types/jenkins-types';
 import { JobsModel } from '../types/model';
@@ -97,6 +96,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
 
     public async addReservation(job: JobsModel) {
         let delayInMinutesStr = await vscode.window.showInputBox({
+            title: 'Reservation Job :: ' + job.name,
             prompt: 'Enter the time you want it to run [3 ~ 120]',
             value: '5'
         });
@@ -114,6 +114,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
 
     public async addMultiReservation(jobs: JobsModel[]) {
         let delayInMinutesStr = await vscode.window.showInputBox({
+            title: 'Reservation Job :: <' + jobs.length + '>',
             prompt: 'Enter the time you want it to run [3 ~ 120]',
             value: '5'
         });
@@ -142,6 +143,7 @@ export class ReservationProvider implements vscode.TreeDataProvider<ReservationJ
                 }
 
                 const result = await vscode.window.showInputBox({
+                    title: 'Job <' + job.name + '> :: Param <' + param.name + '>',
                     prompt: 'Enter "' + param.description ?? '' + '"',
                     value: param.defaultParameterValue.value
                 }).then((val) => {

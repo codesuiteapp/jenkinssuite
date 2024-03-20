@@ -30,7 +30,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<SnippetItem> {
     readonly onDidChangeTreeData: vscode.Event<SnippetItem | SnippetItem[] | undefined> = this._onDidChangeTreeData.event;
 
     async getTreeItem(element: SnippetItem): Promise<vscode.TreeItem> {
-        const iconPath = element.type && element.type === 'system' ? new vscode.ThemeIcon('symbol-enum') : this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`);
+        const iconPath = element.type && element.type === 'system' ? new vscode.ThemeIcon('circle-filled') : this.context.asAbsolutePath(`resources/icons/${element.language ?? 'xml'}.svg`);
         const label = this.getLabel(element);
         let treeItem: vscode.TreeItem;
         treeItem = {

@@ -173,10 +173,10 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
                 await vscode.window.showQuickPick(items, {
                     title: vscode.l10n.t("Reservation"),
-                    placeHolder: vscode.l10n.t("Select to switch only job")
+                    placeHolder: vscode.l10n.t("Select to add reservation job")
                 }).then(async (item) => {
                     if (item) {
-                        this.reservationProvider.addReservation(item.model!);
+                        await this.reservationProvider.addReservation(item.model!);
                     }
                 });
             }),
@@ -185,7 +185,7 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
 
                 await vscode.window.showQuickPick(items, {
                     title: vscode.l10n.t("Reservation"),
-                    placeHolder: vscode.l10n.t("Select to switch only job"),
+                    placeHolder: vscode.l10n.t("Select to add reservation job"),
                     canPickMany: true
                 }).then(async (selectedItems) => {
                     if (selectedItems) {

@@ -474,7 +474,7 @@ export class Executor {
                     continue;
                 }
                 const result = await vscode.window.showInputBox({
-                    title: param.name,
+                    title: 'Job <' + job.name + '> :: Param <' + param.name + '>',
                     prompt: 'Enter "' + param.description ?? '' + '"',
                     value: param.defaultParameterValue?.value ?? ''
                 }).then((val) => {
