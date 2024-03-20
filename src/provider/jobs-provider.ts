@@ -107,9 +107,9 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
             }),
             vscode.commands.registerCommand('utocode.generateJobCode', async () => {
                 const items: vscode.QuickPickItem[] = [
-                    { label: 'Pipeline_SCM', description: 'Generate Pipeline Job From SCM' },
-                    { label: 'Pipeline', description: 'Generate Pipeline Job' },
-                    { label: 'FreeStyle', description: 'Generate FreeStyle Job' },
+                    { label: '$(repo-clone) Pipeline_SCM', description: 'Generate Pipeline Job From SCM' },
+                    { label: '$(file-code) Pipeline', description: 'Generate Pipeline Job' },
+                    { label: '$(console) FreeStyle', description: 'Generate FreeStyle Job' }
                 ];
                 const result = await vscode.window.showQuickPick(items, {
                     title: vscode.l10n.t("Generate Job Code"),
@@ -131,10 +131,19 @@ export class JobsProvider implements vscode.TreeDataProvider<JobsModel> {
                 const snippets = await this.snippetSvc.invokeSnippetAll(true);
                 const items: ModelQuickPick<SnippetItem>[] = [];
 
+                let prevLang: string | undefined = undefined;
                 Object.keys(snippets).forEach((key: string) => {
                     const snippet = snippets[key];
+                    let lang = snippet?.language ?? 'all';
+                    if (prevLang === undefined || prevLang !== lang) {
+                        items.push({
+                            label: `:: ${lang} ::`,
+                            kind: vscode.QuickPickItemKind.Separator
+                        });
+                        prevLang = lang;
+                    }
                     items.push({
-                        label: (snippet.type === Constants.SNIPPET_TYPE_SYSTEM ? '$(lightbulb) ' + Constants.SNIPPET_PREFIX_JENKINS : '$(edit) ' + Constants.SNIPPET_PREFIX_USER) + key,
+                        label: (snippet.type === Constants.SNIPPET_TYPE_SYSTEM ? '$(circle-filled) ' + Constants.SNIPPET_PREFIX_JENKINS : '$(edit) ' + Constants.SNIPPET_PREFIX_USER) + key,
                         description: snippet.description,
                         model: snippet
                     });

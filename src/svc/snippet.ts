@@ -36,7 +36,6 @@ export class SnippetSvc {
 
     async invokeSnippetAll(filtering: boolean = true): Promise<SnippetItems> {
         const files = ['snippet.json'];
-        const customFile = JenkinsConfiguration.snippetCustomFilePath.split(';');
 
         let snippets: SnippetItems = {};
         for (let snippetPath of files) {
@@ -46,6 +45,7 @@ export class SnippetSvc {
             snippets = { ...snippets, ...snippet };
         }
 
+        const customFile = JenkinsConfiguration.snippetCustomFilePath.split(';');
         for (let snippetPath of customFile) {
             try {
                 const snippetContent = await vscode.workspace.fs.readFile(vscode.Uri.file(snippetPath));
@@ -58,17 +58,23 @@ export class SnippetSvc {
 
         let filteredSnippets: SnippetItems = {};
         if (filtering) {
-            Object.keys(snippets).forEach((key: string) => {
-                const item = snippets[key];
-                // const when = item.when ? JenkinsConfiguration.getPropertyAsBoolean(item.when) : true;
-                if (!item.hidden) {
-                    filteredSnippets = {
-                        ...filteredSnippets, ...{
-                            [key]: item
-                        }
-                    };
-                }
-            });
+            Object.keys(snippets)
+                .sort((keyA, keyB) => {
+                    const lang1 = snippets[keyA].language || '';
+                    const lang2 = snippets[keyB].language || '';
+                    return lang1.localeCompare(lang2);
+                })
+                .forEach((key: string) => {
+                    const item = snippets[key];
+                    // const when = item.when ? JenkinsConfiguration.getPropertyAsBoolean(item.when) : true;
+                    if (!item.hidden) {
+                        filteredSnippets = {
+                            ...filteredSnippets, ...{
+                                [key]: item
+                            }
+                        };
+                    }
+                });
         } else {
             filteredSnippets = snippets;
         }

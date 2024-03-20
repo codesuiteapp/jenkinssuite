@@ -1,15 +1,17 @@
+import path from 'path';
 import * as vscode from 'vscode';
 import { Executor } from '../api/executor';
 import JenkinsConfiguration, { JenkinsServer } from "../config/settings";
 import { BuildsProvider } from '../provider/builds-provider';
 import { ConnectionProvider } from '../provider/connection-provider';
 import { JobsProvider } from '../provider/jobs-provider';
+import { Constants } from '../svc/constants';
 import { BallColor } from '../types/jenkins-types';
 import { BuildStatus, JobModelType, JobsModel, ModelQuickPick } from '../types/model';
 import { printEditorWithNew } from '../utils/editor';
 import { getParameterDefinition } from '../utils/model-utils';
-import { executeViewWindow, switchHeaderView } from '../utils/vsc';
-import { buildButtons, jobHeaderButtons, manageButtons } from './button';
+import { executeJobWindow, executeLinkJobWindow, executeViewWindow, switchHeaderView } from '../utils/vsc';
+import { buildButtons, buildHeaderButtons, hisButtons, hisHeaderButtons, jobHeaderButtons, manageButtons, settingHeaderButtons } from './button';
 import { showInfoMessageWithTimeout } from "./ui";
 
 export async function switchConnection(context: vscode.ExtensionContext, connectionProvider: ConnectionProvider) {
@@ -37,6 +39,7 @@ export async function switchConnection(context: vscode.ExtensionContext, connect
     quickPick.matchOnDetail = true;
     quickPick.matchOnDescription = true;
     quickPick.items = items;
+    quickPick.buttons = settingHeaderButtons;
 
     quickPick.onDidAccept(async () => {
         const item = quickPick.selectedItems[0] as ModelQuickPick<JenkinsServer>;
@@ -46,6 +49,11 @@ export async function switchConnection(context: vscode.ExtensionContext, connect
 
         await connectionProvider.connect(item.model!);
         quickPick.dispose();
+    });
+
+    quickPick.onDidTriggerButton(async (btn) => {
+        quickPick.dispose();
+        await switchHeaderView(btn);
     });
 
     quickPick.onDidTriggerItemButton(async (e) => {
@@ -73,6 +81,7 @@ export async function runJobAll(jobsProvider: JobsProvider, includeJob: boolean 
     quickPick.matchOnDetail = true;
     quickPick.matchOnDescription = true;
     quickPick.items = await getJobsAsModel(jobsProvider, jobs, includeJob);
+    quickPick.buttons = buildHeaderButtons;
 
     quickPick.onDidAccept(async () => {
         const item = quickPick.selectedItems[0] as ModelQuickPick<JobsModel>;
@@ -82,6 +91,15 @@ export async function runJobAll(jobsProvider: JobsProvider, includeJob: boolean 
 
         await vscode.commands.executeCommand('utocode.buildJob', item.model);
         quickPick.dispose();
+    });
+
+    quickPick.onDidTriggerButton(async (btn) => {
+        quickPick.dispose();
+        if (btn === vscode.QuickInputButtons.Back) {
+            await executeJobWindow();
+        } else {
+            await switchHeaderView(btn);
+        }
     });
 
     quickPick.onDidTriggerItemButton(async (e) => {
@@ -237,13 +255,13 @@ export async function switchJob(items: ModelQuickPick<JobsModel>[], buildsProvid
     });
 
     quickPick.onDidTriggerItemButton(async (e) => {
-        if (e.button.tooltip === 'Run') {
+        if (e.button.tooltip === Constants.RUN_BUTTON) {
             await vscode.commands.executeCommand('utocode.buildJob', e.item.model);
-        } else if (e.button.tooltip === 'Config') {
+        } else if (e.button.tooltip === Constants.CONFIG_BUTTON) {
             await vscode.commands.executeCommand('utocode.getConfigJob', e.item.model, true);
-        } else if (e.button.tooltip === 'Log') {
+        } else if (e.button.tooltip === Constants.LOG_BUTTON) {
             await buildsProvider.getJobLogByJob(e.item.model as JobsModel, 0);
-        } else if (e.button.tooltip === 'Open') {
+        } else if (e.button.tooltip === Constants.OPEN_LINK_BUTTON) {
             await vscode.commands.executeCommand('utocode.openLinkJob', e.item.model);
         }
     });
@@ -252,15 +270,59 @@ export async function switchJob(items: ModelQuickPick<JobsModel>[], buildsProvid
 }
 
 export async function switchBuild(executor: Executor, jobs: JobsModel | undefined, builds: BuildStatus[]) {
-    await vscode.window.showQuickPick(builds.map<string>(v => v.number.toString()), {
-        title: 'Job :: ' + (jobs?.name ?? 'Builds'),
-        placeHolder: vscode.l10n.t("Select to view Job Log")
-    }).then(async (item) => {
-        if (item) {
-            const text = await executor?.getJobLog(jobs!.url, parseInt(item));
-            if (text) {
-                printEditorWithNew(text, 'shellscript');
-            }
+    const items: ModelQuickPick<JobsModel>[] = [];
+    builds.forEach(v => {
+        items.push({
+            label: '$(circle-outline)',
+            description: v.number.toString(),
+            buttons: hisButtons,
+            model: jobs
+        });
+        if (items.length % 5 === 0) {
+            items.push({
+                label: '',
+                kind: vscode.QuickPickItemKind.Separator
+            });
         }
     });
+
+    const quickPick = vscode.window.createQuickPick<ModelQuickPick<JobsModel>>();
+    quickPick.title = vscode.l10n.t('Build History :: ' + (jobs?.name ?? 'Builds'));
+    quickPick.placeholder = vscode.l10n.t("Select to view Build Log");
+    // quickPick.ignoreFocusOut = true;
+    quickPick.matchOnDetail = true;
+    quickPick.matchOnDescription = true;
+    quickPick.items = items;
+    quickPick.buttons = hisHeaderButtons;
+
+    quickPick.onDidAccept(async () => {
+        const item = quickPick.selectedItems[0] as ModelQuickPick<JobsModel>;
+        if (!item) {
+            return;
+        }
+
+        const text = await executor?.getJobLog(jobs!.url, parseInt(item.description!));
+        if (text) {
+            printEditorWithNew(text, 'shellscript');
+        }
+        quickPick.dispose();
+    });
+
+    quickPick.onDidTriggerButton(async (btn) => {
+        quickPick.dispose();
+        if (btn === vscode.QuickInputButtons.Back) {
+            await executeJobWindow();
+        } else {
+            await switchHeaderView(btn);
+        }
+    });
+
+    quickPick.onDidTriggerItemButton(async (e) => {
+        if (e.button.tooltip === Constants.OPEN_LINK_BUTTON) {
+            const url = [e.item.model?.url! + e.item.description!, 'console'].join('/');
+            await executeLinkJobWindow(url);
+        }
+    });
+
+    quickPick.show();
 }

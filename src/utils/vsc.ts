@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Constants } from '../svc/constants';
-import { showInfoMessageWithTimeout } from '../ui/ui';
+import { openLinkBrowser, showInfoMessageWithTimeout } from '../ui/ui';
 
 export function getMessageL10n(mesg: string, ...args: Array<string | number | boolean>) {
     let message = vscode.l10n.t(mesg);
@@ -155,12 +155,18 @@ export async function executeJobWindow(...rest: any[]) {
     await executeCommand('utocode.switchJob', ...rest);
 }
 
+export async function executeLinkJobWindow(url: string) {
+    await openLinkBrowser(url);
+}
+
 export async function switchHeaderView(btn: vscode.QuickInputButton) {
     if (btn.tooltip === Constants.JOB_WINDOW_BUTTON) {
         await executeJobWindow();
-    } else if (btn.tooltip === Constants.VIEW_EXTENSION_NAME) {
+    } else if (btn.tooltip === Constants.VIEW_WINDOW_BUTTON) {
         await executeViewWindow();
     } else if (btn.tooltip === Constants.SERVER_WINDOW_BUTTON) {
         await executeServerWindow();
+    } else if (btn.tooltip === Constants.SETTING_WINDOW_BUTTON) {
+        await openSettings('server');
     }
 }

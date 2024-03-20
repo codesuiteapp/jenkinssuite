@@ -31,6 +31,11 @@ const linkBtn: QuickInputButton = {
     tooltip: Constants.OPEN_LINK_BUTTON
 };
 
+export const settingWindowBtn: QuickInputButton = {
+    iconPath: new ThemeIcon('gear'),
+    tooltip: Constants.SETTING_WINDOW_BUTTON
+};
+
 export const serverWindowBtn: QuickInputButton = {
     iconPath: new ThemeIcon('server'),
     tooltip: Constants.SERVER_WINDOW_BUTTON
@@ -54,8 +59,14 @@ export const buildButtons = [configBtn, logBtn];
 
 export const viewButtons = [configBtn, linkBtn];
 
+export const settingHeaderButtons = [settingWindowBtn];
+
 export const viewHeaderButtons = [QuickInputButtons.Back, jobWindowBtn];
 
 export const jobHeaderButtons = [QuickInputButtons.Back, serverWindowBtn];
 
 export const buildHeaderButtons = [QuickInputButtons.Back, serverWindowBtn, viewWindowBtn];
+
+export const hisHeaderButtons = [QuickInputButtons.Back, serverWindowBtn, viewWindowBtn, jobWindowBtn];
+
+export const hisButtons = [linkBtn];

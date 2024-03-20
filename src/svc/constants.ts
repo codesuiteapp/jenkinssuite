@@ -33,6 +33,8 @@ export namespace Constants {
 
     export const OPEN_LINK_BUTTON = 'Open Link';
 
+    export const SETTING_WINDOW_BUTTON = 'Setting Window';
+
     export const SERVER_WINDOW_BUTTON = 'Server Window';
 
     export const VIEW_WINDOW_BUTTON = 'View Window';
